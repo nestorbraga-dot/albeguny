@@ -1,5 +1,5 @@
 {
-  "name": "Albetigun",
+  "name": "Doce Sabor",
   "description": "Aplicativo de delivery e catálogo profissional para sorveterias e lanches.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]

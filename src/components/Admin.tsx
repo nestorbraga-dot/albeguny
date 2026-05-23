@@ -1,3 +1,4 @@
+"use client";
 import React, { useState, useEffect } from 'react';
 import { Settings, Edit2, Trash2, Plus, Image as ImageIcon, Save, X, PlusCircle, Lock, Store, LayoutGrid, BarChart3, TrendingUp, DollarSign, ArrowLeft } from 'lucide-react';
 
@@ -60,6 +61,19 @@ export default function Admin({ onNavigateToView }: AdminProps) {
     return false;
   });
   const [passwordInput, setPasswordInput] = useState('');
+
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    const correctPassword = 'realsalarios()*';
+    if (passwordInput === correctPassword) {
+      setIsAuthenticated(true);
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem('sorvefood_admin_auth', 'true');
+      }
+    } else {
+      alert('Senha incorreta');
+    }
+  };
   
   const [activeTab, setActiveTab] = useState<'products' | 'categories' | 'stats' | 'settings'>('products');
   const [storeOpen, setStoreOpen] = useState(true);

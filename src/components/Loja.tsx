@@ -1,3 +1,4 @@
+"use client";
 import React, { useState, useEffect } from 'react';
 import { ShoppingCart, IceCream, Search, Plus, X, Minus, ClipboardList, Home as HomeIcon, Monitor } from 'lucide-react';
 
@@ -152,19 +153,10 @@ export default function Loja({ onNavigateToView }: LojaProps) {
     }
     return true;
   });
-  const [storeSettings, setStoreSettings] = useState<StoreSettings>(() => {
-    const defaultSettings = {
-      bannerImage: 'https://images.unsplash.com/photo-1501443715934-62e42b298451?w=1200&auto=format&fit=crop&q=80',
-      bannerTitle: 'O Melhor Sorvete da Cidade',
-      bannerDescription: 'Sabor artesanal, ingredientes frescos e muito amor na receita.'
-    };
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('sorvefood_store_settings');
-      if (saved) {
-        try { return JSON.parse(saved); } catch { return defaultSettings; }
-      }
-    }
-    return defaultSettings;
+  const [storeSettings, setStoreSettings] = useState<StoreSettings>({
+    bannerImage: 'https://images.unsplash.com/photo-1501443715934-62e42b298451?w=1200&auto=format&fit=crop&q=80',
+    bannerTitle: 'Cardápio Digital - Albeguny',
+    bannerDescription: 'Sabor artesanal, ingredientes frescos e muito amor na receita.'
   });
 
   const [myOrders, setMyOrders] = useState<Order[]>(() => {
@@ -402,7 +394,7 @@ export default function Loja({ onNavigateToView }: LojaProps) {
       <header className="sticky top-0 z-30 bg-white shadow-xs border-b border-neutral-100">
         <div className="max-w-3xl mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2 text-amber-500 font-bold text-2xl">
-            <IceCream size={26} /> Albetigun
+            <IceCream size={26} /> Doce Sabor
           </div>
           {/* Foco na limpeza: Removido botão de atalho de cozinha do cabeçalho do cliente */}
         </div>
@@ -421,7 +413,7 @@ export default function Loja({ onNavigateToView }: LojaProps) {
                 <div className="absolute inset-0 bg-black/45" />
               </div>
               <div className="relative z-10 max-w-sm">
-                <h1 className="text-2xl md:text-3xl font-extrabold mb-1">{storeSettings.bannerTitle}</h1>
+                <h1 className="text-2xl md:text-3xl font-extrabold mb-1 text-amber-500">{storeSettings.bannerTitle}</h1>
                 <p className="text-white/90 text-sm">{storeSettings.bannerDescription}</p>
               </div>
             </section>
@@ -493,7 +485,7 @@ export default function Loja({ onNavigateToView }: LojaProps) {
             {/* Rodapé discreto e profissional para acesso do lojista */}
             {onNavigateToView && (
               <div className="text-center pt-8 pb-4 border-t border-neutral-200/50 mt-12 bg-neutral-55 rounded-2xl p-4">
-                <p className="text-neutral-400 text-[11px] font-sans">© 2026 Albetigun App - Cardápio & Delivery Online.</p>
+                <p className="text-neutral-400 text-[11px] font-sans">© 2026 Doce Sabor App - Cardápio & Delivery Online.</p>
                 <button 
                   onClick={() => onNavigateToView('admin')} 
                   className="text-neutral-500 hover:text-amber-500 transition-colors text-[11px] font-mono mt-1.5 underline cursor-pointer"
@@ -508,7 +500,7 @@ export default function Loja({ onNavigateToView }: LojaProps) {
         {/* ABA: CARRINHO */}
         {activeTab === 'cart' && (
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold mb-4 flex items-center gap-2"><ShoppingCart className="text-amber-500"/> Seu Carrinho</h2>
+            <h2 className="text-2xl font-bold mb-4 flex items-center gap-2"><ShoppingCart className="text-amber-500"/> MEU carrinho</h2>
             
             <div className="space-y-4">
                {cartItems.map(item => (
