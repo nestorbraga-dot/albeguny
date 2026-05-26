@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { db, Order, Size, Extra } from "@/lib/db";
 import crypto from "crypto";
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   return NextResponse.json(db.ordersList);
 }
