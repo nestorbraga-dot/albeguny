@@ -1,18 +1,13 @@
 import { NextResponse } from "next/server";
-import { getKV, setKV } from "@/lib/supabase-kv";
-import { Order, Size, Extra } from "@/lib/db";
+import { db, Order, Size, Extra } from "@/lib/db";
 import crypto from "crypto";
 
-export const dynamic = 'force-dynamic';
-
 export async function GET() {
-  const orders = await getKV('sorvefood_orders', []);
-  return NextResponse.json(orders);
+  return NextResponse.json(db.ordersList);
 }
 
 export async function POST(request: Request) {
-  const storeOpenStatus = await getKV('sorvefood_store_status', true);
-  if (!storeOpenStatus) {
+  if (!db.storeOpenStatus) {
     return NextResponse.json({ error: "A loja está fechada no momento." }, { status: 400 });
   }
 
@@ -35,8 +30,10 @@ export async function POST(request: Request) {
     const validatedItems = [];
 
     for (const item of items) {
-      // MVP Bypass: Confiar no produto enviado pelo frontend, pois o backend Vercel é volátil
-      const serverProduct = item.product;
+      const serverProduct = db.productsList.find(p => p.id === item.product.id);
+      if (!serverProduct) {
+        return NextResponse.json({ error: `O produto com ID ${item.product.id} não existe mais no cardápio.` }, { status: 400 });
+      }
 
       if (serverProduct.isAvailable === false) {
         return NextResponse.json({ error: `O produto '${serverProduct.name}' está esgotado no momento.` }, { status: 400 });
@@ -46,7 +43,7 @@ export async function POST(request: Request) {
       let itemBasePrice = serverProduct.price;
 
       if (item.selectedSize) {
-        const foundSize = serverProduct.sizes?.find((s: Size) => s.id === item.selectedSize.id);
+        const foundSize = serverProduct.sizes?.find(s => s.id === item.selectedSize.id);
         if (!foundSize) {
           return NextResponse.json({ error: `O tamanho selecionado para o produto ${serverProduct.name} é inválido.` }, { status: 400 });
         }
@@ -57,7 +54,7 @@ export async function POST(request: Request) {
       const validatedExtras: Extra[] = [];
       if (item.selectedExtras && Array.isArray(item.selectedExtras)) {
         for (const ext of item.selectedExtras) {
-          const foundExtra = serverProduct.extras?.find((e: Extra) => e.id === ext.id);
+          const foundExtra = serverProduct.extras?.find(e => e.id === ext.id);
           if (!foundExtra) {
             return NextResponse.json({ error: `O adicional '${ext.name}' não é válido para o produto ${serverProduct.name}.` }, { status: 400 });
           }
@@ -102,10 +99,7 @@ export async function POST(request: Request) {
       tableNumber: deliveryType === 'MESA' ? tableNumber.trim() : undefined,
     };
 
-    const currentOrders = await getKV('sorvefood_orders', []);
-    const updatedOrders = [newOrder, ...currentOrders];
-    await setKV('sorvefood_orders', updatedOrders);
-
+    db.ordersList = [newOrder, ...db.ordersList];
     return NextResponse.json({ success: true, order: newOrder });
   } catch (error) {
     const errorMsg = error instanceof Error ? error.message : "Erro desconhecido ao processar pedido.";

@@ -170,6 +170,7 @@ export default function Loja({ onNavigateToView }: LojaProps) {
   });
 
   useEffect(() => {
+    // Carrega dados iniciais da API
     const loadApiData = async () => {
       try {
         const [resCats, resProds, resStatus, resSettings] = await Promise.all([
@@ -196,7 +197,7 @@ export default function Loja({ onNavigateToView }: LojaProps) {
           localStorage.setItem('sorvefood_store_settings', JSON.stringify(resSettings));
         }
       } catch (e) {
-        console.warn("Sem conexão com Supabase - usando cache", e);
+        console.warn("Sem conexão direta com servidor local - usando cache", e);
       }
     };
     loadApiData();

@@ -1,19 +1,16 @@
 import { NextResponse } from "next/server";
-import { getKV, setKV } from "@/lib/supabase-kv";
-
-export const dynamic = 'force-dynamic';
+import { db } from "@/lib/db";
 
 export async function GET() {
-  const status = await getKV('sorvefood_store_status', true);
-  return NextResponse.json({ status });
+  return NextResponse.json({ status: db.storeOpenStatus });
 }
 
 export async function POST(request: Request) {
   try {
     const { status } = await request.json();
     if (typeof status === "boolean") {
-      await setKV('sorvefood_store_status', status);
-      return NextResponse.json({ success: true, status });
+      db.storeOpenStatus = status;
+      return NextResponse.json({ success: true, status: db.storeOpenStatus });
     }
     return NextResponse.json({ error: "Status precisa ser um valor booleano." }, { status: 400 });
   } catch (error) {

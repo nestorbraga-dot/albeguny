@@ -101,38 +101,25 @@ export default function Admin({ onNavigateToView }: AdminProps) {
           fetch('/api/orders').then(r => r.json())
         ]);
 
-        if (resCats) {
-          setCategories(resCats);
-          localStorage.setItem('sorvefood_categories', JSON.stringify(resCats));
-        }
+        if (resCats) setCategories(resCats);
         if (resProds) {
           setProducts(resProds);
           localStorage.setItem('sorvefood_products', JSON.stringify(resProds));
         }
-        if (resStatus && typeof resStatus.status === 'boolean') {
-          setStoreOpen(resStatus.status);
-          localStorage.setItem('sorvefood_store_status', JSON.stringify(resStatus.status));
-        }
-        if (resSettings) {
-          setStoreSettings(resSettings);
-          localStorage.setItem('sorvefood_store_settings', JSON.stringify(resSettings));
-        }
-        if (resOrders) {
-          setOrders(resOrders);
-          localStorage.setItem('sorvefood_orders', JSON.stringify(resOrders));
-        }
+        if (resStatus && typeof resStatus.status === 'boolean') setStoreOpen(resStatus.status);
+        if (resSettings) setStoreSettings(resSettings);
+        if (resOrders) setOrders(resOrders);
       } catch (e) {
-        console.warn("Offline ou erro na API Supabase, usando cache local", e);
+        console.warn("Offline ou sem conexão de rede com a API de administração", e);
         const savedCats = localStorage.getItem('sorvefood_categories');
-        const savedProds = localStorage.getItem('sorvefood_products');
-        const savedStatus = localStorage.getItem('sorvefood_store_status');
-        const savedSettings = localStorage.getItem('sorvefood_store_settings');
-        const savedOrders = localStorage.getItem('sorvefood_orders');
-
         if (savedCats) setCategories(JSON.parse(savedCats));
+        const savedProds = localStorage.getItem('sorvefood_products');
         if (savedProds) setProducts(JSON.parse(savedProds));
+        const savedStatus = localStorage.getItem('sorvefood_store_status');
         if (savedStatus) setStoreOpen(JSON.parse(savedStatus));
+        const savedSettings = localStorage.getItem('sorvefood_store_settings');
         if (savedSettings) setStoreSettings(JSON.parse(savedSettings));
+        const savedOrders = localStorage.getItem('sorvefood_orders');
         if (savedOrders) setOrders(JSON.parse(savedOrders));
       }
     };
