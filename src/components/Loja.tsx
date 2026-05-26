@@ -173,6 +173,11 @@ export default function Loja({ onNavigateToView }: LojaProps) {
     // Carrega dados iniciais da API
     const loadApiData = async () => {
       try {
+        const savedCats = localStorage.getItem('sorvefood_categories');
+        const savedProds = localStorage.getItem('sorvefood_products');
+        const savedStatus = localStorage.getItem('sorvefood_store_status');
+        const savedSettings = localStorage.getItem('sorvefood_store_settings');
+
         const [resCats, resProds, resStatus, resSettings] = await Promise.all([
           fetch('/api/categories').then(r => r.json()),
           fetch('/api/products').then(r => r.json()),
@@ -180,19 +185,19 @@ export default function Loja({ onNavigateToView }: LojaProps) {
           fetch('/api/settings').then(r => r.json())
         ]);
         
-        if (resCats) {
+        if (resCats && !savedCats) {
           setCategories(resCats);
           localStorage.setItem('sorvefood_categories', JSON.stringify(resCats));
         }
-        if (resProds) {
+        if (resProds && !savedProds) {
           setProducts(resProds);
           localStorage.setItem('sorvefood_products', JSON.stringify(resProds));
         }
-        if (resStatus && typeof resStatus.status === 'boolean') {
+        if (resStatus && typeof resStatus.status === 'boolean' && !savedStatus) {
           setStoreOpen(resStatus.status);
           localStorage.setItem('sorvefood_store_status', JSON.stringify(resStatus.status));
         }
-        if (resSettings) {
+        if (resSettings && !savedSettings) {
           setStoreSettings(resSettings);
           localStorage.setItem('sorvefood_store_settings', JSON.stringify(resSettings));
         }

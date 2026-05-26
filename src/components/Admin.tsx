@@ -93,6 +93,20 @@ export default function Admin({ onNavigateToView }: AdminProps) {
 
     const loadAllAdminData = async () => {
       try {
+        // Tenta carregar do localStorage primeiro para evitar que o backend volátil da Vercel sobrescreva
+        const savedCats = localStorage.getItem('sorvefood_categories');
+        const savedProds = localStorage.getItem('sorvefood_products');
+        const savedStatus = localStorage.getItem('sorvefood_store_status');
+        const savedSettings = localStorage.getItem('sorvefood_store_settings');
+        const savedOrders = localStorage.getItem('sorvefood_orders');
+
+        if (savedCats) setCategories(JSON.parse(savedCats));
+        if (savedProds) setProducts(JSON.parse(savedProds));
+        if (savedStatus) setStoreOpen(JSON.parse(savedStatus));
+        if (savedSettings) setStoreSettings(JSON.parse(savedSettings));
+        if (savedOrders) setOrders(JSON.parse(savedOrders));
+
+        // Busca da API apenas para inicializar se estiver vazio
         const [resCats, resProds, resStatus, resSettings, resOrders] = await Promise.all([
           fetch('/api/categories').then(r => r.json()),
           fetch('/api/products').then(r => r.json()),
@@ -101,26 +115,28 @@ export default function Admin({ onNavigateToView }: AdminProps) {
           fetch('/api/orders').then(r => r.json())
         ]);
 
-        if (resCats) setCategories(resCats);
-        if (resProds) {
+        if (resCats && !savedCats) {
+          setCategories(resCats);
+          localStorage.setItem('sorvefood_categories', JSON.stringify(resCats));
+        }
+        if (resProds && !savedProds) {
           setProducts(resProds);
           localStorage.setItem('sorvefood_products', JSON.stringify(resProds));
         }
-        if (resStatus && typeof resStatus.status === 'boolean') setStoreOpen(resStatus.status);
-        if (resSettings) setStoreSettings(resSettings);
-        if (resOrders) setOrders(resOrders);
+        if (resStatus && typeof resStatus.status === 'boolean' && !savedStatus) {
+          setStoreOpen(resStatus.status);
+          localStorage.setItem('sorvefood_store_status', JSON.stringify(resStatus.status));
+        }
+        if (resSettings && !savedSettings) {
+          setStoreSettings(resSettings);
+          localStorage.setItem('sorvefood_store_settings', JSON.stringify(resSettings));
+        }
+        if (resOrders && !savedOrders) {
+          setOrders(resOrders);
+          localStorage.setItem('sorvefood_orders', JSON.stringify(resOrders));
+        }
       } catch (e) {
-        console.warn("Offline ou sem conexão de rede com a API de administração", e);
-        const savedCats = localStorage.getItem('sorvefood_categories');
-        if (savedCats) setCategories(JSON.parse(savedCats));
-        const savedProds = localStorage.getItem('sorvefood_products');
-        if (savedProds) setProducts(JSON.parse(savedProds));
-        const savedStatus = localStorage.getItem('sorvefood_store_status');
-        if (savedStatus) setStoreOpen(JSON.parse(savedStatus));
-        const savedSettings = localStorage.getItem('sorvefood_store_settings');
-        if (savedSettings) setStoreSettings(JSON.parse(savedSettings));
-        const savedOrders = localStorage.getItem('sorvefood_orders');
-        if (savedOrders) setOrders(JSON.parse(savedOrders));
+        console.warn("Erro ao buscar API", e);
       }
     };
 
