@@ -1,15 +1,18 @@
 import { NextResponse } from "next/server";
-import { db, Order, Size, Extra } from "@/lib/db";
+import { getKV, setKV } from "@/lib/supabase-kv";
+import { Order, Size, Extra } from "@/lib/db";
 import crypto from "crypto";
 
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
-  return NextResponse.json(db.ordersList);
+  const orders = await getKV('sorvefood_orders', []);
+  return NextResponse.json(orders);
 }
 
 export async function POST(request: Request) {
-  if (!db.storeOpenStatus) {
+  const storeOpenStatus = await getKV('sorvefood_store_status', true);
+  if (!storeOpenStatus) {
     return NextResponse.json({ error: "A loja está fechada no momento." }, { status: 400 });
   }
 
@@ -99,7 +102,10 @@ export async function POST(request: Request) {
       tableNumber: deliveryType === 'MESA' ? tableNumber.trim() : undefined,
     };
 
-    db.ordersList = [newOrder, ...db.ordersList];
+    const currentOrders = await getKV('sorvefood_orders', []);
+    const updatedOrders = [newOrder, ...currentOrders];
+    await setKV('sorvefood_orders', updatedOrders);
+
     return NextResponse.json({ success: true, order: newOrder });
   } catch (error) {
     const errorMsg = error instanceof Error ? error.message : "Erro desconhecido ao processar pedido.";

@@ -170,14 +170,8 @@ export default function Loja({ onNavigateToView }: LojaProps) {
   });
 
   useEffect(() => {
-    // Carrega dados iniciais da API
     const loadApiData = async () => {
       try {
-        const savedCats = localStorage.getItem('sorvefood_categories');
-        const savedProds = localStorage.getItem('sorvefood_products');
-        const savedStatus = localStorage.getItem('sorvefood_store_status');
-        const savedSettings = localStorage.getItem('sorvefood_store_settings');
-
         const [resCats, resProds, resStatus, resSettings] = await Promise.all([
           fetch('/api/categories').then(r => r.json()),
           fetch('/api/products').then(r => r.json()),
@@ -185,24 +179,24 @@ export default function Loja({ onNavigateToView }: LojaProps) {
           fetch('/api/settings').then(r => r.json())
         ]);
         
-        if (resCats && !savedCats) {
+        if (resCats) {
           setCategories(resCats);
           localStorage.setItem('sorvefood_categories', JSON.stringify(resCats));
         }
-        if (resProds && !savedProds) {
+        if (resProds) {
           setProducts(resProds);
           localStorage.setItem('sorvefood_products', JSON.stringify(resProds));
         }
-        if (resStatus && typeof resStatus.status === 'boolean' && !savedStatus) {
+        if (resStatus && typeof resStatus.status === 'boolean') {
           setStoreOpen(resStatus.status);
           localStorage.setItem('sorvefood_store_status', JSON.stringify(resStatus.status));
         }
-        if (resSettings && !savedSettings) {
+        if (resSettings) {
           setStoreSettings(resSettings);
           localStorage.setItem('sorvefood_store_settings', JSON.stringify(resSettings));
         }
       } catch (e) {
-        console.warn("Sem conexão direta com servidor local - usando cache", e);
+        console.warn("Sem conexão com Supabase - usando cache", e);
       }
     };
     loadApiData();
