@@ -175,7 +175,7 @@ export default function Loja({ onNavigateToView }: LojaProps) {
       try {
         const [resCats, resProds, resStatus, resSettings] = await Promise.all([
           fetch('/api/categories').then(r => r.json()),
-          fetch('/api/products').then(r => r.json()),
+          fetch('/api/products', { method: 'GET', cache: 'no-store' }).then(r => r.json()),
           fetch('/api/store-status').then(r => r.json()),
           fetch('/api/settings').then(r => r.json())
         ]);

@@ -95,7 +95,7 @@ export default function Admin({ onNavigateToView }: AdminProps) {
       try {
         const [resCats, resProds, resStatus, resSettings, resOrders] = await Promise.all([
           fetch('/api/categories').then(r => r.json()),
-          fetch('/api/products').then(r => r.json()),
+          fetch('/api/products?t=' + Date.now(), { method: 'GET', cache: 'no-store' }).then(r => r.json()),
           fetch('/api/store-status').then(r => r.json()),
           fetch('/api/settings').then(r => r.json()),
           fetch('/api/orders').then(r => r.json())
