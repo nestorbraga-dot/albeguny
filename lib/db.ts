@@ -66,7 +66,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     category: 'lanche',
     image: 'https://images.unsplash.com/photo-1579954115545-a95591f28bfc?w=400&auto=format&fit=crop&q=80',
     extras: [{ id: 'e1', name: 'Calda Extra', price: 2.50 }, { id: 'e2', name: 'Nutella', price: 4.0 }, { id: 'e3', name: 'Granulado', price: 1.5 }],
-    isHidden: false,
+    isHidden: true,
   },
   {
     id: 3,
@@ -137,6 +137,7 @@ if (!globalForDb.db) {
     categoriesSet: persisted?.categoriesSet && Array.isArray(persisted.categoriesSet) && persisted.categoriesSet.length > 0
       ? persisted.categoriesSet
       : [...INITIAL_CATEGORIES],
+    // Sempre usa os dados persistidos; INITIAL_PRODUCTS é apenas para primeira inicialização sem dados
     productsList: persisted?.productsList && Array.isArray(persisted.productsList) && persisted.productsList.length > 0
       ? persisted.productsList
       : [...INITIAL_PRODUCTS],
@@ -172,6 +173,7 @@ export async function getDb(): Promise<GlobalDb> {
     } else if (data && data.value) {
       const persisted = data.value as any;
       // Sincroniza o singleton local na memória do processo e retorna
+      // Supabase tem dados: usa diretamente sem sobrescrever com INITIAL_PRODUCTS
       globalForDb.db = {
         categoriesSet: persisted.categoriesSet && Array.isArray(persisted.categoriesSet) && persisted.categoriesSet.length > 0
           ? persisted.categoriesSet
