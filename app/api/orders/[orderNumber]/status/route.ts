@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { db } from "@/lib/db";
+import { getDb, saveDb } from "@/lib/db";
 
 export async function PUT(
   request: Request,
@@ -9,6 +9,7 @@ export async function PUT(
     const { orderNumber } = await params;
     const { status } = await request.json();
 
+    const db = await getDb();
     const order = db.ordersList.find(o => o.orderNumber === orderNumber);
     if (!order) {
       return NextResponse.json({ error: "Pedido não localizado." }, { status: 404 });
@@ -16,6 +17,7 @@ export async function PUT(
 
     if (status === "PREPARANDO" || status === "PRONTO" || status === "ENTREGUE") {
       order.status = status;
+      await saveDb(db);
       return NextResponse.json({ success: true, order });
     }
     

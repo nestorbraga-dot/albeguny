@@ -140,7 +140,7 @@ export default function Admin({ onNavigateToView }: AdminProps) {
     const newState = !storeOpen;
     setStoreOpen(newState);
     localStorage.setItem('sorvefood_store_status', JSON.stringify(newState));
-    window.dispatchEvent(new Event('storage'));
+    window.dispatchEvent(new StorageEvent('storage', { key: 'sorvefood_store_status' }));
 
     try {
       await fetch('/api/store-status', {
@@ -159,7 +159,7 @@ export default function Admin({ onNavigateToView }: AdminProps) {
       const updated = [...new Set([...categories, newCat.trim()])];
       setCategories(updated);
       localStorage.setItem('sorvefood_categories', JSON.stringify(updated));
-      window.dispatchEvent(new Event('storage'));
+      window.dispatchEvent(new StorageEvent('storage', { key: 'sorvefood_categories' }));
 
       try {
         await fetch('/api/categories', {
@@ -178,7 +178,7 @@ export default function Admin({ onNavigateToView }: AdminProps) {
       const updated = categories.filter(c => c !== cat);
       setCategories(updated);
       localStorage.setItem('sorvefood_categories', JSON.stringify(updated));
-      window.dispatchEvent(new Event('storage'));
+      window.dispatchEvent(new StorageEvent('storage', { key: 'sorvefood_categories' }));
 
       try {
         await fetch('/api/categories', {
@@ -195,7 +195,7 @@ export default function Admin({ onNavigateToView }: AdminProps) {
   const saveProducts = async (newProducts: Product[]) => {
     setProducts(newProducts);
     localStorage.setItem('sorvefood_products', JSON.stringify(newProducts));
-    window.dispatchEvent(new Event('storage'));
+    window.dispatchEvent(new StorageEvent('storage', { key: 'sorvefood_products' }));
 
     try {
       await fetch('/api/products', {
@@ -393,12 +393,12 @@ export default function Admin({ onNavigateToView }: AdminProps) {
                    />
                  </div>
                  <button 
-                   onClick={() => {
-                     localStorage.setItem('sorvefood_store_settings', JSON.stringify(storeSettings));
-                     window.dispatchEvent(new Event('storage'));
-                     fetch('/api/settings', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(storeSettings) }).catch(e => console.error(e));
-                      alert('As alterações foram salvas com sucesso! Atualize a aba do cliente para visualizar.');
-                   }}
+                    onClick={() => {
+                      localStorage.setItem('sorvefood_store_settings', JSON.stringify(storeSettings));
+                      window.dispatchEvent(new StorageEvent('storage', { key: 'sorvefood_store_settings' }));
+                      fetch('/api/settings', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(storeSettings) }).catch(e => console.error(e));
+                       alert('As alterações foram salvas com sucesso! Atualize a aba do cliente para visualizar.');
+                    }}
                    className="w-full sm:w-auto bg-amber-500 hover:bg-amber-600 text-white font-bold py-2.5 px-5 rounded-xl transition-colors shadow-xs cursor-pointer text-xs"
                  >
                    Salvar Imagem e Textos

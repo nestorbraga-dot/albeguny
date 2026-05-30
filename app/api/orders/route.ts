@@ -1,12 +1,16 @@
 import { NextResponse } from "next/server";
-import { db, Order, Size, Extra } from "@/lib/db";
+import { getDb, saveDb, Order, Size, Extra } from "@/lib/db";
 import crypto from "crypto";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
+  const db = await getDb();
   return NextResponse.json(db.ordersList);
 }
 
 export async function POST(request: Request) {
+  const db = await getDb();
   if (!db.storeOpenStatus) {
     return NextResponse.json({ error: "A loja está fechada no momento." }, { status: 400 });
   }
@@ -100,6 +104,7 @@ export async function POST(request: Request) {
     };
 
     db.ordersList = [newOrder, ...db.ordersList];
+    await saveDb(db);
     return NextResponse.json({ success: true, order: newOrder });
   } catch (error) {
     const errorMsg = error instanceof Error ? error.message : "Erro desconhecido ao processar pedido.";

@@ -170,7 +170,7 @@ export default function Loja({ onNavigateToView }: LojaProps) {
   });
 
   useEffect(() => {
-    // Carrega dados iniciais da API
+    // Carrega dados da API (produtos, categorias, status, settings)
     const loadApiData = async () => {
       try {
         const [resCats, resProds, resStatus, resSettings] = await Promise.all([
@@ -180,11 +180,11 @@ export default function Loja({ onNavigateToView }: LojaProps) {
           fetch('/api/settings').then(r => r.json())
         ]);
         
-        if (resCats) {
+        if (resCats && Array.isArray(resCats)) {
           setCategories(resCats);
           localStorage.setItem('sorvefood_categories', JSON.stringify(resCats));
         }
-        if (resProds) {
+        if (resProds && Array.isArray(resProds)) {
           setProducts(resProds);
           localStorage.setItem('sorvefood_products', JSON.stringify(resProds));
         }
@@ -192,7 +192,7 @@ export default function Loja({ onNavigateToView }: LojaProps) {
           setStoreOpen(resStatus.status);
           localStorage.setItem('sorvefood_store_status', JSON.stringify(resStatus.status));
         }
-        if (resSettings) {
+        if (resSettings && resSettings.bannerTitle) {
           setStoreSettings(resSettings);
           localStorage.setItem('sorvefood_store_settings', JSON.stringify(resSettings));
         }
@@ -200,40 +200,46 @@ export default function Loja({ onNavigateToView }: LojaProps) {
         console.warn("Sem conexão direta com servidor local - usando cache", e);
       }
     };
+
+    // Carga inicial imediata
     loadApiData();
 
+    // Polling periódico a cada 5 segundos para sincronizar com alterações do admin
+    const pollingInterval = setInterval(loadApiData, 5000);
+
+    // Recarrega dados quando o usuário volta à aba (mais responsivo que polling)
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') loadApiData();
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+
     // Sincronização via localStorage se as abas atualizarem localmente
-    const handleCatsChange = (e: StorageEvent) => {
-      if (e.key === 'sorvefood_categories') {
+    const handleStorageChange = (e: StorageEvent) => {
+      const key = e.key;
+      if (!key || key === 'sorvefood_categories') {
         const updated = localStorage.getItem('sorvefood_categories');
         if (updated) setCategories(JSON.parse(updated));
       }
-      if (e.key === 'sorvefood_store_settings') {
+      if (!key || key === 'sorvefood_store_settings') {
         const updated = localStorage.getItem('sorvefood_store_settings');
         if (updated) setStoreSettings(JSON.parse(updated));
       }
-      if (e.key === 'sorvefood_store_status') {
+      if (!key || key === 'sorvefood_store_status') {
         const updated = localStorage.getItem('sorvefood_store_status');
         if (updated) setStoreOpen(JSON.parse(updated));
       }
-    };
-    window.addEventListener('storage', handleCatsChange);
-
-    return () => {
-      window.removeEventListener('storage', handleCatsChange);
-    };
-  }, []);
-
-  useEffect(() => {
-    const handleProductsChange = (e: StorageEvent) => {
-      if (e.key === 'sorvefood_products') {
+      if (!key || key === 'sorvefood_products') {
         const updated = localStorage.getItem('sorvefood_products');
         if (updated) setProducts(JSON.parse(updated));
       }
     };
-    window.addEventListener('storage', handleProductsChange);
+    window.addEventListener('storage', handleStorageChange);
 
-    return () => window.removeEventListener('storage', handleProductsChange);
+    return () => {
+      clearInterval(pollingInterval);
+      document.removeEventListener('visibilitychange', handleVisibility);
+      window.removeEventListener('storage', handleStorageChange);
+    };
   }, []);
 
   useEffect(() => {
